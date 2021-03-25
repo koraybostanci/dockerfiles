@@ -1,0 +1,64 @@
+version: "3.8"
+
+networks:
+  monitoring:
+
+volumes:
+  monitoring_prometheus:
+  monitoring_grafana:
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    networks: 
+      - "monitoring"
+    ports:
+      - "3000:3000"
+    volumes:
+      - monitoring_grafana:/var/lib/grafana
+      - ./grafana/dashboards:/dashboards
+      - ./grafana/dashboards/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    environment: 
+      GF_INSTALL_PLUGINS: "flant-statusmap-panel,grafana-piechart-panel"
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    networks: 
+      - "monitoring"
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - monitoring_prometheus:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    networks:
+      - "monitoring"
+    expose:
+      - 9100
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    networks: 
+      - "monitoring"
+    expose:
+      - 8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
