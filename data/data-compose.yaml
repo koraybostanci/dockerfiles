@@ -1,0 +1,42 @@
+version: "3.9"
+
+networks: 
+  data:
+
+services:
+  postgres:
+    build: ./postgres
+    container_name: postgres
+    networks:
+      - "data"
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./postgres/.env
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+  redis:
+    image: redis:6
+    container_name: redis
+    networks:
+      - "data"
+    ports:
+      - "6379:6379"
+    volumes:
+      - /tmp/app/redis:/var/lib/redis
+    restart: always
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    networks: 
+      - "data"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "15692:15692"
+    volumes:
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq.conf:ro
