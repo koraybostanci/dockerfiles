@@ -2,11 +2,11 @@
 
 ## Description
 
-This repository contains the required manifest files, configuration files, and helper scripts to spawn defined containers on the local environment using either docker or docker-compose.
+This repository contains the manifest & configuration files, and helper scripts to spawn containers on the local environment using either docker or docker-compose.
 
-Currently, there are few applications provided by this repository since they're the main stack of the development pipeline.
+Currently, there are a few applications supported since they are likely the main stack of the development pipeline.
 
-## Structure
+## Stacks
 
 - Data
 
@@ -21,9 +21,17 @@ Currently, there are few applications provided by this repository since they're 
   - Prometheus
 
   - Grafana
+    
+  - Node Exporter
+    
+  - CAdvisor
+
+## Networking
+
+Currently, both stacks run in the same network, called "dev". Running the applications in the same network brings the advantage that the containers can communicate to each other by their DNS names.
 
 ## Scripts
 
-- **docker-run.sh** contains the commands to run applications as individual containers.
+- **run-docker.sh** contains the commands to run applications as individual containers.
 
-- **docker-compose-run.sh** contains the commands to run applications together by a `docker-compose` file. Therefore, those applications are grouped under relevant names.
+- **run-compose.sh** contains the commands to run applications together by a `docker-compose` file. Therefore, those applications are grouped under stacks.
